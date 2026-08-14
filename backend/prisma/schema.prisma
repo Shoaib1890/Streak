@@ -1,0 +1,55 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Player {
+  id                 String    @id @default(uuid()) @db.Uuid
+  displayName        String    @map("display_name") @db.VarChar(30)
+  currentStreak      Int       @default(0) @map("current_streak")
+  longestStreak      Int       @default(0) @map("longest_streak")
+  totalGames         Int       @default(0) @map("total_games")
+  totalCorrect       Int       @default(0) @map("total_correct")
+  lastPlayedGameDate DateTime? @map("last_played_game_date") @db.Date
+  lastAttemptCorrect Boolean?  @map("last_attempt_correct")
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt          DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  attempts           Attempt[]
+
+  @@map("players")
+}
+
+model Puzzle {
+  id         String    @id @default(uuid()) @db.Uuid
+  gameDate   DateTime  @unique @map("game_date") @db.Date
+  type       String    @map("type") @db.VarChar(50)
+  title      String    @map("title") @db.VarChar(255)
+  question   String    @map("question") @db.Text
+  answer     String    @map("answer") @db.Text
+  difficulty String    @map("difficulty") @db.VarChar(50)
+  status     String    @map("status") @db.VarChar(50)
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt  DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  attempts   Attempt[]
+
+  @@map("puzzles")
+}
+
+model Attempt {
+  id              String   @id @default(uuid()) @db.Uuid
+  playerId        String   @map("player_id") @db.Uuid
+  puzzleId        String   @map("puzzle_id") @db.Uuid
+  guess           String   @map("guess") @db.Text
+  isCorrect       Boolean  @map("is_correct")
+  previousStreak  Int      @map("previous_streak")
+  submittedAt     DateTime @default(now()) @map("submitted_at") @db.Timestamptz
+  player      Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  puzzle      Puzzle   @relation(fields: [puzzleId], references: [id], onDelete: Restrict)
+
+  @@unique([playerId, puzzleId], name: "uniquePlayerPuzzle")
+  @@map("attempts")
+}
