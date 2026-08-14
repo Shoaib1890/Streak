@@ -16,8 +16,8 @@ export function Header({ playerName, currentStreak, onLogout }: HeaderProps) {
       <div className="header-actions">
         <StreakDisplay currentStreak={currentStreak} size="sm" />
         {onLogout && (
-          <button type="button" className="btn-text" onClick={onLogout} aria-label="Change player">
-            Change
+          <button type="button" className="btn-text" onClick={onLogout} aria-label="Sign out and use a different name">
+            Change name
           </button>
         )}
       </div>

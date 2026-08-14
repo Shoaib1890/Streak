@@ -18,6 +18,7 @@ function App() {
   const { game, isLoading: gameLoading, error: gameError, refetch } = useTodayGame(playerId);
   const { submitGuess, isSubmitting, error: submitError, clearError } = useSubmitGuess();
   const [localResult, setLocalResult] = useState<GuessResult | null>(null);
+  const [pendingGuess, setPendingGuess] = useState<string | null>(null);
 
   const handleRollover = useCallback(() => {
     setLocalResult(null);
@@ -27,15 +28,25 @@ function App() {
   const handleGuess = useCallback(
     async (guess: string) => {
       if (!playerId) return;
+      setPendingGuess(guess);
       clearError();
       const result = await submitGuess(playerId, guess);
       if (result) {
+        setPendingGuess(null);
         setLocalResult(result);
         await refetch();
       }
     },
     [playerId, submitGuess, clearError, refetch]
   );
+
+  const handleRetrySubmit = useCallback(() => {
+    if (pendingGuess) {
+      void handleGuess(pendingGuess);
+    } else {
+      clearError();
+    }
+  }, [pendingGuess, handleGuess, clearError]);
 
   const completedResult: GuessResult | null = useMemo(() => {
     if (!game?.player.hasPlayedToday || !game.player.todayAttempt) return null;
@@ -124,7 +135,7 @@ function App() {
                   ? "Your attempt was not recorded. Please try again."
                   : submitError.message
               }
-              onRetry={() => clearError()}
+              onRetry={handleRetrySubmit}
             />
           )}
         </>

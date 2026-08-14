@@ -34,6 +34,4 @@ backend/prisma/migrations/**/migration_lock.toml.bak
 # Extracted docs (local only)
 prd_extract.txt
 
-# Old prototype (not part of production app)
-server/
-public/
+# Legacy prototype removed — production app is backend/ + frontend/

@@ -46,7 +46,7 @@ export function Onboarding({ onSubmit, isLoading, error }: OnboardingProps) {
             {error}
           </p>
         )}
-        <button type="submit" className="btn btn-primary" disabled={isLoading || !name.trim()}>
+        <button type="submit" className="btn btn-primary" disabled={isLoading || !name.trim()} aria-busy={isLoading}>
           {isLoading ? 'Starting…' : 'Start playing'}
         </button>
       </form>

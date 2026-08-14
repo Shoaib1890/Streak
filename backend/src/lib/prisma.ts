@@ -1,5 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 export const prisma = new PrismaClient({
-  log: process.env.NODE_ENV === 'development' ? ['query', 'info', 'warn', 'error'] : ['error'],
+  // Never log SQL in production — queries include puzzle answers.
+  log: isProduction ? ['error'] : ['warn', 'error'],
 });
