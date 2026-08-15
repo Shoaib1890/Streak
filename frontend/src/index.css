@@ -582,6 +582,35 @@ input, button {
   color: var(--text-primary);
 }
 
+.edit-name-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+  background: none;
+  -webkit-text-fill-color: unset;
+  text-align: left;
+}
+
+.edit-name-hint {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.edit-name-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.edit-name-actions .btn {
+  flex: 1;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
 /* Screen reader only */
 .sr-only {
   position: absolute;

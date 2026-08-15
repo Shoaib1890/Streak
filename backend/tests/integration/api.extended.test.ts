@@ -2,37 +2,15 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import request from 'supertest';
 import { DateTime } from 'luxon';
 import { prisma } from '../../src/lib/prisma.js';
-import {
-  getCurrentGameDate,
-  getCurrentGameDateAsJSDate,
-  parseGameDateToJSDate,
-} from '../../src/lib/date.js';
+import { ensureIntegrationTestPuzzle } from '../helpers/testPuzzle.js';
+import { parseGameDateToJSDate } from '../../src/lib/date.js';
 
 describe('Consecutive-day streak (integration)', () => {
   let playerId: string;
   const cleanupIds: string[] = [];
 
   beforeAll(async () => {
-    const todayJSDate = getCurrentGameDateAsJSDate();
-    await prisma.puzzle.upsert({
-      where: { gameDate: todayJSDate },
-      update: {
-        title: 'Integration Test Puzzle',
-        question: 'What is 2 + 2?',
-        answer: 'four',
-        difficulty: 'EASY',
-        status: 'PUBLISHED',
-      },
-      create: {
-        gameDate: todayJSDate,
-        type: 'WORD',
-        title: 'Integration Test Puzzle',
-        question: 'What is 2 + 2?',
-        answer: 'four',
-        difficulty: 'EASY',
-        status: 'PUBLISHED',
-      },
-    });
+    await ensureIntegrationTestPuzzle();
   });
 
   afterAll(async () => {

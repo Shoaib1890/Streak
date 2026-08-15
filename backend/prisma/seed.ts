@@ -1,71 +1,38 @@
 import { PrismaClient } from '@prisma/client';
 import { DateTime } from 'luxon';
 import { parseGameDateToJSDate } from '../src/lib/date.js';
+import { normalizeAnswer } from '../src/lib/normalize.js';
+import { CURATED_PUZZLES } from './curated-puzzles.js';
 
 const prisma = new PrismaClient();
 const GAME_TIMEZONE = 'Asia/Kolkata';
 
+function validatePuzzleAnswers(): void {
+  for (const puzzle of CURATED_PUZZLES) {
+    const normalized = normalizeAnswer(puzzle.answer);
+    if (normalized !== puzzle.answer) {
+      throw new Error(
+        `Puzzle "${puzzle.title}" answer must be pre-normalized. Got "${puzzle.answer}", expected "${normalized}".`
+      );
+    }
+    if (!puzzle.question.trim() || !puzzle.title.trim()) {
+      throw new Error(`Puzzle at offset ${puzzle.offsetDays} has empty title or question.`);
+    }
+  }
+
+  const dates = CURATED_PUZZLES.map((p) => p.offsetDays);
+  if (new Set(dates).size !== dates.length) {
+    throw new Error('CURATED_PUZZLES contains duplicate offsetDays values.');
+  }
+}
+
 async function main() {
-  console.log('Seeding puzzles...');
+  console.log('Seeding production puzzles...');
+  validatePuzzleAnswers();
 
   const today = DateTime.now().setZone(GAME_TIMEZONE);
 
-  const puzzlesData = [
-    {
-      offsetDays: -2,
-      title: 'The Mystery Keys',
-      question:
-        'I have keys but no locks. I have space but no room. You can enter but can’t go outside. What am I?',
-      answer: 'keyboard',
-      difficulty: 'MEDIUM',
-    },
-    {
-      offsetDays: -1,
-      title: 'The Voice without Mouth',
-      question:
-        'I speak without a mouth and hear without ears. I have no body, but I come alive with wind. What am I?',
-      answer: 'echo',
-      difficulty: 'EASY',
-    },
-    {
-      offsetDays: 0,
-      title: 'Today’s Riddle',
-      question:
-        'I have cities but no houses, forests but no trees, and water but no fish. What am I?',
-      answer: 'map',
-      difficulty: 'MEDIUM',
-    },
-    {
-      offsetDays: 1,
-      title: 'Steps Left Behind',
-      question: 'The more of them you take, the more you leave behind. What are they?',
-      answer: 'footsteps',
-      difficulty: 'MEDIUM',
-    },
-    {
-      offsetDays: 2,
-      title: 'Fragile Vessel',
-      question: 'What has to be broken before you can use it?',
-      answer: 'egg',
-      difficulty: 'EASY',
-    },
-    {
-      offsetDays: 3,
-      title: 'Holey Container',
-      question: 'What is full of holes but still holds water?',
-      answer: 'sponge',
-      difficulty: 'EASY',
-    },
-    {
-      offsetDays: 4,
-      title: 'Always Ahead',
-      question: 'What is always in front of you but can’t be seen?',
-      answer: 'future',
-      difficulty: 'HARD',
-    },
-  ];
-
-  for (const data of puzzlesData) {
+  for (const data of CURATED_PUZZLES) {
     const gameDateStr = today.plus({ days: data.offsetDays }).toFormat('yyyy-MM-dd');
     const dateOnly = parseGameDateToJSDate(gameDateStr);
 
@@ -77,6 +44,7 @@ async function main() {
         answer: data.answer,
         difficulty: data.difficulty,
         status: 'PUBLISHED',
+        type: 'WORD',
       },
       create: {
         gameDate: dateOnly,
@@ -90,7 +58,7 @@ async function main() {
     });
   }
 
-  console.log('Seeding completed successfully!');
+  console.log(`Seeding completed: ${CURATED_PUZZLES.length} puzzles published.`);
 }
 
 main()

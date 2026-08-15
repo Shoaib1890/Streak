@@ -23,6 +23,13 @@ export function usePlayer() {
     }
   };
 
+  const updateDisplayName = (name: string): void => {
+    const trimmed = name.trim();
+    if (!trimmed || !playerId) return;
+    localStorage.setItem('streak_player_name', trimmed);
+    setPlayerName(trimmed);
+  };
+
   const logout = (): void => {
     localStorage.removeItem('streak_player_id');
     localStorage.removeItem('streak_player_name');
@@ -36,6 +43,7 @@ export function usePlayer() {
     isLoading,
     error,
     createPlayer,
+    updateDisplayName,
     logout,
   };
 }

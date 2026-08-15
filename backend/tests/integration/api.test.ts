@@ -1,10 +1,11 @@
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import request from 'supertest';
 import { DateTime } from 'luxon';
 import app from '../../src/app.js';
 import { prisma } from '../../src/lib/prisma.js';
 import { rateLimit } from '../../src/middleware/rateLimit.js';
 import { errorHandler } from '../../src/middleware/errorHandler.js';
+import { ensureIntegrationTestPuzzle } from '../helpers/testPuzzle.js';
 import {
   getCurrentGameDate,
   getCurrentGameDateAsJSDate,
@@ -17,27 +18,7 @@ describe('Streak REST API Integration Tests', () => {
   let puzzleId: string;
 
   beforeAll(async () => {
-    const todayJSDate = getCurrentGameDateAsJSDate();
-    const puzzle = await prisma.puzzle.upsert({
-      where: { gameDate: todayJSDate },
-      update: {
-        title: 'Integration Test Puzzle',
-        question: 'What is 2 + 2?',
-        answer: 'four',
-        difficulty: 'EASY',
-        status: 'PUBLISHED',
-      },
-      create: {
-        gameDate: todayJSDate,
-        type: 'WORD',
-        title: 'Integration Test Puzzle',
-        question: 'What is 2 + 2?',
-        answer: 'four',
-        difficulty: 'EASY',
-        status: 'PUBLISHED',
-      },
-    });
-    puzzleId = puzzle.id;
+    puzzleId = await ensureIntegrationTestPuzzle();
   });
 
   afterAll(async () => {

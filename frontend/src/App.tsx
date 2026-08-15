@@ -10,15 +10,24 @@ import { GameCard } from './components/GameCard.js';
 import { GuessInput } from './components/GuessInput.js';
 import { ResultCard } from './components/ResultCard.js';
 import { StatsPanel } from './components/StatsPanel.js';
+import { EditDisplayName } from './components/EditDisplayName.js';
 import type { GuessResult } from './types/game.js';
 
 function App() {
-  const { playerId, playerName, isLoading: playerLoading, error: playerError, createPlayer, logout } =
-    usePlayer();
+  const {
+    playerId,
+    playerName,
+    isLoading: playerLoading,
+    error: playerError,
+    createPlayer,
+    updateDisplayName,
+    logout,
+  } = usePlayer();
   const { game, isLoading: gameLoading, error: gameError, refetch } = useTodayGame(playerId);
   const { submitGuess, isSubmitting, error: submitError, clearError } = useSubmitGuess();
   const [localResult, setLocalResult] = useState<GuessResult | null>(null);
   const [pendingGuess, setPendingGuess] = useState<string | null>(null);
+  const [isEditingName, setIsEditingName] = useState(false);
 
   const handleRollover = useCallback(() => {
     setLocalResult(null);
@@ -108,7 +117,22 @@ function App() {
 
   return (
     <main className="app">
-      <Header playerName={playerName} currentStreak={player.currentStreak} onLogout={logout} />
+      <Header
+        playerName={playerName}
+        currentStreak={player.currentStreak}
+        onEditDisplayName={() => setIsEditingName(true)}
+      />
+
+      {isEditingName && playerName && (
+        <EditDisplayName
+          currentName={playerName}
+          onSave={(name) => {
+            updateDisplayName(name);
+            setIsEditingName(false);
+          }}
+          onCancel={() => setIsEditingName(false)}
+        />
+      )}
 
       {player.missedDay && !player.hasPlayedToday && !localResult && (
         <div className="missed-banner card" role="status">
