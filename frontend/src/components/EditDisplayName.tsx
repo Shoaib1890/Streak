@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 
 interface EditDisplayNameProps {
   currentName: string;
@@ -9,6 +9,14 @@ interface EditDisplayNameProps {
 export function EditDisplayName({ currentName, onSave, onCancel }: EditDisplayNameProps) {
   const [name, setName] = useState(currentName);
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onCancel();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onCancel]);
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     const trimmed = name.trim();
@@ -16,7 +24,12 @@ export function EditDisplayName({ currentName, onSave, onCancel }: EditDisplayNa
   };
 
   return (
-    <div className="edit-name card" role="dialog" aria-labelledby="edit-name-title">
+    <div
+      className="edit-name card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="edit-name-title"
+    >
       <h2 id="edit-name-title" className="edit-name-title">
         Change display name
       </h2>

@@ -1,12 +1,16 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { api, ApiClientError } from '../services/api.js';
 import type { GuessResult } from '../types/game.js';
 
 export function useSubmitGuess() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<ApiClientError | null>(null);
+  const inFlightRef = useRef(false);
 
   const submitGuess = useCallback(async (playerId: string, guess: string): Promise<GuessResult | null> => {
+    if (inFlightRef.current) return null;
+
+    inFlightRef.current = true;
     setIsSubmitting(true);
     setError(null);
     try {
@@ -21,6 +25,7 @@ export function useSubmitGuess() {
       }
       return null;
     } finally {
+      inFlightRef.current = false;
       setIsSubmitting(false);
     }
   }, []);

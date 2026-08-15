@@ -142,9 +142,9 @@ function App() {
       )}
 
       {localResult ? (
-        <ResultCard result={localResult} onRollover={handleRollover} />
+        <ResultCard result={localResult} celebrate onRollover={handleRollover} />
       ) : showCompleted ? (
-        <ResultCard result={completedResult} completed onRollover={handleRollover} />
+        <ResultCard result={completedResult} onRollover={handleRollover} />
       ) : (
         <>
           <GameCard puzzle={puzzle}>

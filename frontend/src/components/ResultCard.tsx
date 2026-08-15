@@ -1,48 +1,41 @@
 import { useEffect } from 'react';
 import confetti from 'canvas-confetti';
-import { CalendarCheck, CheckCircle2, XCircle } from 'lucide-react';
+import { CheckCircle2, XCircle } from 'lucide-react';
 import { StreakDisplay } from './StreakDisplay.js';
 import { Countdown } from './Countdown.js';
 import type { GuessResult } from '../types/game.js';
 
 interface ResultCardProps {
   result: GuessResult;
-  completed?: boolean;
+  /** When true, plays celebration effects for a fresh correct submission. */
+  celebrate?: boolean;
   onRollover?: () => void;
 }
 
-export function ResultCard({ result, completed, onRollover }: ResultCardProps) {
+export function ResultCard({ result, celebrate = false, onRollover }: ResultCardProps) {
   const { correct, previousStreak, currentStreak, longestStreak, answer, guess } = result;
 
   useEffect(() => {
-    if (correct && !completed) {
+    if (celebrate && correct) {
       const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (!prefersReduced) {
         confetti({ particleCount: 80, spread: 60, origin: { y: 0.7 } });
       }
     }
-  }, [correct, completed]);
+  }, [celebrate, correct]);
 
-  const cardClass = completed
-    ? 'result-card--completed'
-    : correct
-      ? 'result-card--correct'
-      : 'result-card--incorrect';
+  const cardClass = correct ? 'result-card--correct' : 'result-card--incorrect';
 
   return (
     <section className={`result-card card ${cardClass}`} aria-live="polite">
       <div className="result-hero">
-        {completed ? (
-          <>
-            <CalendarCheck className="result-icon" size={32} aria-hidden="true" />
-            <h2 className="result-heading">Today&apos;s puzzle complete</h2>
-            <p className="result-subheading">You&apos;ve already made your guess for today.</p>
-          </>
-        ) : correct ? (
+        {correct ? (
           <>
             <CheckCircle2 className="result-icon result-icon--correct" size={32} aria-hidden="true" />
-            <h2 className="result-heading">Correct!</h2>
-            <p className="result-subheading">Your streak continues.</p>
+            <h2 className="result-heading">{celebrate ? 'Correct!' : 'You got it today'}</h2>
+            <p className="result-subheading">
+              {celebrate ? 'Your streak continues.' : 'Your streak is still going.'}
+            </p>
           </>
         ) : (
           <>
@@ -54,10 +47,10 @@ export function ResultCard({ result, completed, onRollover }: ResultCardProps) {
       </div>
 
       <div className="result-body">
-        {(completed || correct) && (
+        {correct ? (
           <div className="result-streak-block">
             <StreakDisplay currentStreak={currentStreak} longestStreak={longestStreak} />
-            {correct && !completed && (
+            {celebrate && (
               <p
                 className="streak-change"
                 aria-label={`Streak changed from ${previousStreak} to ${currentStreak}`}
@@ -66,9 +59,7 @@ export function ResultCard({ result, completed, onRollover }: ResultCardProps) {
               </p>
             )}
           </div>
-        )}
-
-        {!correct && !completed && (
+        ) : (
           <div className="result-answers">
             <p className="result-detail">
               <span className="result-detail-label">Your answer</span>

@@ -16,4 +16,9 @@ describe('curated production puzzles', () => {
       expect(puzzle.question.toLowerCase()).not.toContain('2 + 2');
     }
   });
+
+  it('should use unique answers across the catalog', () => {
+    const answers = CURATED_PUZZLES.map((p) => p.answer);
+    expect(new Set(answers).size).toBe(answers.length);
+  });
 });

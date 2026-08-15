@@ -10,10 +10,25 @@ interface StatsPanelProps {
 export function StatsPanel({ playerId }: StatsPanelProps) {
   const [stats, setStats] = useState<PlayerStats | null>(null);
   const [open, setOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
     if (!open) return;
-    api.getPlayerStats(playerId).then(setStats).catch(() => setStats(null));
+
+    setIsLoading(true);
+    setLoadError(false);
+    api
+      .getPlayerStats(playerId)
+      .then((data) => {
+        setStats(data);
+        setLoadError(false);
+      })
+      .catch(() => {
+        setStats(null);
+        setLoadError(true);
+      })
+      .finally(() => setIsLoading(false));
   }, [playerId, open]);
 
   return (
@@ -31,7 +46,17 @@ export function StatsPanel({ playerId }: StatsPanelProps) {
         </span>
         <ChevronDown className="stats-toggle-chevron" size={18} aria-hidden="true" />
       </button>
-      {open && stats && (
+      {open && isLoading && (
+        <p id="stats-content" className="stats-message" role="status">
+          Loading stats…
+        </p>
+      )}
+      {open && loadError && !isLoading && (
+        <p id="stats-content" className="stats-message stats-message--error" role="alert">
+          Couldn&apos;t load stats. Try closing and reopening.
+        </p>
+      )}
+      {open && stats && !isLoading && (
         <dl id="stats-content" className="stats-grid card">
           <div className="stats-item">
             <dt>Current streak</dt>

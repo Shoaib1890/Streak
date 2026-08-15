@@ -136,6 +136,42 @@ describe('Streak REST API Integration Tests', () => {
     await prisma.attempt.deleteMany({ where: { playerId: other.body.playerId } });
     await prisma.player.delete({ where: { id: other.body.playerId } });
   });
+
+  it('POST /api/v1/game/guess should reject empty and whitespace-only guesses', async () => {
+    const other = await request(app).post('/api/v1/players').send({ displayName: 'EmptyGuess' });
+    const pid = other.body.playerId;
+
+    const empty = await request(app).post('/api/v1/game/guess').send({ playerId: pid, guess: '' });
+    expect(empty.status).toBe(400);
+    expect(empty.body.error.code).toBe('INVALID_REQUEST');
+
+    const whitespace = await request(app)
+      .post('/api/v1/game/guess')
+      .send({ playerId: pid, guess: '   ' });
+    expect(whitespace.status).toBe(400);
+    expect(whitespace.body.error.code).toBe('INVALID_REQUEST');
+
+    await prisma.player.delete({ where: { id: pid } });
+  });
+
+  it('POST /api/v1/game/guess should reject missing guess field', async () => {
+    const other = await request(app).post('/api/v1/players').send({ displayName: 'NoGuess' });
+    const res = await request(app).post('/api/v1/game/guess').send({ playerId: other.body.playerId });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('INVALID_REQUEST');
+
+    await prisma.player.delete({ where: { id: other.body.playerId } });
+  });
+
+  it('POST /api/v1/game/guess should return 404 for unknown player UUID', async () => {
+    const res = await request(app)
+      .post('/api/v1/game/guess')
+      .send({ playerId: '00000000-0000-0000-0000-000000000000', guess: 'four' });
+
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('PLAYER_NOT_FOUND');
+  });
 });
 
 describe('Wrong answer and missed-day streak scenarios', () => {
@@ -159,6 +195,32 @@ describe('Wrong answer and missed-day streak scenarios', () => {
     expect(res.status).toBe(200);
     expect(res.body.correct).toBe(false);
     expect(res.body.currentStreak).toBe(0);
+  });
+
+  it('should persist incorrect todayAttempt after wrong guess for page refresh', async () => {
+    const player = await request(app).post('/api/v1/players').send({ displayName: 'WrongRefresh' });
+    cleanupIds.push(player.body.playerId);
+
+    const guessRes = await request(app)
+      .post('/api/v1/game/guess')
+      .send({ playerId: player.body.playerId, guess: 'wrong answer' });
+
+    expect(guessRes.status).toBe(200);
+    expect(guessRes.body.correct).toBe(false);
+    expect(guessRes.body.answer).toBe('four');
+    expect(guessRes.body.guess).toBe('wrong answer');
+
+    const todayRes = await request(app).get(`/api/v1/game/today?playerId=${player.body.playerId}`);
+
+    expect(todayRes.status).toBe(200);
+    expect(todayRes.body.player.hasPlayedToday).toBe(true);
+    expect(todayRes.body.player.currentStreak).toBe(0);
+    expect(todayRes.body.player.todayAttempt).toEqual({
+      correct: false,
+      guess: 'wrong answer',
+      answer: 'four',
+    });
+    expect(todayRes.body.puzzle).not.toHaveProperty('answer');
   });
 
   it('should start streak at 1 after missed days with correct answer', async () => {

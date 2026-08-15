@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Clock } from 'lucide-react';
 import { getSecondsToKolkataMidnight, formatSecondsToHHMMSS } from '../lib/date.js';
 
@@ -8,12 +8,24 @@ interface CountdownProps {
 
 export function Countdown({ onRollover }: CountdownProps) {
   const [seconds, setSeconds] = useState(getSecondsToKolkataMidnight());
+  const hasRolledOverRef = useRef(false);
+
+  useEffect(() => {
+    hasRolledOverRef.current = false;
+  }, [onRollover]);
 
   useEffect(() => {
     const interval = setInterval(() => {
       const remaining = getSecondsToKolkataMidnight();
       setSeconds(remaining);
-      if (remaining <= 1 && onRollover) {
+
+      if (remaining > 1) {
+        hasRolledOverRef.current = false;
+        return;
+      }
+
+      if (!hasRolledOverRef.current && onRollover) {
+        hasRolledOverRef.current = true;
         onRollover();
       }
     }, 1000);
