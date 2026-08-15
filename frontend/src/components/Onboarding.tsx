@@ -17,21 +17,28 @@ export function Onboarding({ onSubmit, isLoading, error }: OnboardingProps) {
 
   return (
     <section className="onboarding card" aria-labelledby="onboarding-title">
-      <h1 id="onboarding-title">STREAK</h1>
-      <p className="tagline">One puzzle. One guess. Every day.</p>
-      <p className="rules-hint">
-        Get it right to extend your streak. Miss or get it wrong and it resets.
-      </p>
+      <div className="onboarding-hero">
+        <h1 id="onboarding-title" className="onboarding-logo">
+          STREAK
+        </h1>
+        <p className="tagline">One puzzle. One guess. Every day.</p>
+      </div>
 
-      <form onSubmit={handleSubmit} noValidate>
-        <label htmlFor="player-name" className="sr-only">
-          Your name
+      <ul className="onboarding-features" aria-label="How it works">
+        <li>Answer today&apos;s puzzle with a single guess</li>
+        <li>Get it right to grow your daily streak</li>
+        <li>Miss a day or guess wrong and it resets</li>
+      </ul>
+
+      <form className="onboarding-form" onSubmit={handleSubmit} noValidate>
+        <label htmlFor="player-name" className="onboarding-label">
+          Display name
         </label>
         <input
           id="player-name"
           type="text"
           className="text-input"
-          placeholder="Your name"
+          placeholder="How should we greet you?"
           value={name}
           onChange={(e) => setName(e.target.value)}
           maxLength={30}
@@ -39,14 +46,22 @@ export function Onboarding({ onSubmit, isLoading, error }: OnboardingProps) {
           autoFocus
           disabled={isLoading}
           aria-invalid={!!error}
-          aria-describedby={error ? 'onboarding-error' : undefined}
+          aria-describedby={error ? 'onboarding-error' : 'onboarding-hint'}
         />
+        <p id="onboarding-hint" className="onboarding-hint">
+          No account needed — just pick a name and start playing.
+        </p>
         {error && (
           <p id="onboarding-error" className="form-error" role="alert">
             {error}
           </p>
         )}
-        <button type="submit" className="btn btn-primary" disabled={isLoading || !name.trim()} aria-busy={isLoading}>
+        <button
+          type="submit"
+          className="btn btn-primary"
+          disabled={isLoading || !name.trim()}
+          aria-busy={isLoading}
+        >
           {isLoading ? 'Starting…' : 'Start playing'}
         </button>
       </form>

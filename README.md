@@ -162,11 +162,22 @@ App: `http://localhost:5173`
 
 ## Testing
 
+Tests use a **separate database** (`streak_test`) so `npm test` never overwrites development puzzle data.
+
 ```bash
 cd backend
-npm test        # 43+ integration + unit tests
-npm run build
+cp .env.test.example .env.test
+# Edit DATABASE_URL if needed, then create the test database once:
+psql -U postgres -c "CREATE DATABASE streak_test;"
 
+npm test        # migrates streak_test, then runs integration + unit tests
+npm run build
+```
+
+`backend/.env` → development / manual QA (`streak`).  
+`backend/.env.test` → isolated test database (`streak_test`).
+
+```bash
 cd frontend
 npm run build
 npm run lint

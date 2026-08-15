@@ -10,6 +10,8 @@
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
+    "db:test:prepare": "tsx scripts/prepare-test-db.ts",
+    "pretest": "npm run db:test:prepare",
     "test": "vitest run",
     "test:watch": "vitest"
   },

@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { Loader2 } from 'lucide-react';
 
 interface GuessInputProps {
   onSubmit: (guess: string) => void;
@@ -17,33 +18,50 @@ export function GuessInput({ onSubmit, isSubmitting, disabled }: GuessInputProps
     }
   };
 
+  const isDisabled = isSubmitting || disabled;
+
   return (
     <form className="guess-form" onSubmit={handleSubmit} noValidate>
-      <label htmlFor="guess-input" className="guess-label">
-        Your one guess
-      </label>
+      <div className="guess-section-header">
+        <label htmlFor="guess-input" className="guess-label">
+          Your one guess
+        </label>
+        <span className="guess-rule" aria-hidden="true">
+          No take-backs
+        </span>
+      </div>
       <input
         id="guess-input"
         type="text"
-        className="text-input"
+        className="text-input guess-input"
         placeholder="Type your answer…"
         value={guess}
         onChange={(e) => setGuess(e.target.value)}
         maxLength={100}
-        disabled={isSubmitting || disabled}
+        disabled={isDisabled}
         autoComplete="off"
         autoCapitalize="off"
         spellCheck={false}
+        aria-describedby="guess-hint"
       />
       <button
         type="submit"
-        className="btn btn-primary"
-        disabled={isSubmitting || disabled || !guess.trim()}
+        className="btn btn-primary guess-submit"
+        disabled={isDisabled || !guess.trim()}
         aria-busy={isSubmitting}
       >
-        {isSubmitting ? 'Checking…' : 'Submit guess'}
+        {isSubmitting ? (
+          <>
+            <Loader2 className="btn-icon btn-icon--spin" size={18} aria-hidden="true" />
+            Checking…
+          </>
+        ) : (
+          'Submit guess'
+        )}
       </button>
-      <p className="guess-hint">One guess. Make it count.</p>
+      <p id="guess-hint" className="guess-hint">
+        One guess per day. Make it count.
+      </p>
     </form>
   );
 }

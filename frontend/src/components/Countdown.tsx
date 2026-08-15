@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Clock } from 'lucide-react';
 import { getSecondsToKolkataMidnight, formatSecondsToHHMMSS } from '../lib/date.js';
 
 interface CountdownProps {
@@ -20,11 +21,14 @@ export function Countdown({ onRollover }: CountdownProps) {
   }, [onRollover]);
 
   return (
-    <p className="countdown" aria-live="off">
-      <span className="countdown-label">Next puzzle in</span>
+    <div className="countdown" aria-live="off">
+      <div className="countdown-header">
+        <Clock className="countdown-icon" size={14} aria-hidden="true" />
+        <span className="countdown-label">Next puzzle in</span>
+      </div>
       <time className="countdown-time" dateTime={`PT${seconds}S`}>
         {formatSecondsToHHMMSS(seconds)}
       </time>
-    </p>
+    </div>
   );
 }

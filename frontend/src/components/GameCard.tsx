@@ -7,17 +7,21 @@ interface GameCardProps {
 }
 
 export function GameCard({ puzzle, children }: GameCardProps) {
+  const difficultyClass = `puzzle-badge--${puzzle.difficulty.toLowerCase()}`;
+
   return (
     <article className="game-card card" aria-labelledby="puzzle-title">
-      <p className="puzzle-meta">
-        <span className="puzzle-badge">{puzzle.difficulty}</span>
+      <div className="puzzle-meta">
+        <span className={`puzzle-badge ${difficultyClass}`}>{puzzle.difficulty}</span>
         <span className="puzzle-type">{puzzle.type}</span>
-      </p>
+      </div>
       <h2 id="puzzle-title" className="puzzle-title">
         {puzzle.title}
       </h2>
-      <p className="puzzle-question">{puzzle.question}</p>
-      {children}
+      <blockquote className="puzzle-question" cite="">
+        {puzzle.question}
+      </blockquote>
+      {children && <div className="guess-section">{children}</div>}
     </article>
   );
 }

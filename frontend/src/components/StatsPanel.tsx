@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { BarChart3, ChevronDown } from 'lucide-react';
 import { api } from '../services/api.js';
 import type { PlayerStats } from '../types/game.js';
 
@@ -16,40 +17,44 @@ export function StatsPanel({ playerId }: StatsPanelProps) {
   }, [playerId, open]);
 
   return (
-    <div className="stats-panel">
+    <section className="stats-panel" aria-label="Your statistics">
       <button
         type="button"
-        className="btn btn-secondary stats-toggle"
+        className={`stats-toggle ${open ? 'stats-toggle--open' : ''}`}
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-controls="stats-content"
       >
-        {open ? 'Hide stats' : 'Your stats'}
+        <span className="stats-toggle-left">
+          <BarChart3 className="stats-toggle-icon" size={18} aria-hidden="true" />
+          <span className="stats-toggle-label">Your stats</span>
+        </span>
+        <ChevronDown className="stats-toggle-chevron" size={18} aria-hidden="true" />
       </button>
       {open && stats && (
         <dl id="stats-content" className="stats-grid card">
-          <div>
+          <div className="stats-item">
             <dt>Current streak</dt>
             <dd>{stats.currentStreak}</dd>
           </div>
-          <div>
+          <div className="stats-item">
             <dt>Longest streak</dt>
             <dd>{stats.longestStreak}</dd>
           </div>
-          <div>
+          <div className="stats-item">
             <dt>Games played</dt>
             <dd>{stats.totalGames}</dd>
           </div>
-          <div>
+          <div className="stats-item">
             <dt>Correct answers</dt>
             <dd>{stats.totalCorrect}</dd>
           </div>
-          <div>
+          <div className="stats-item stats-item--full">
             <dt>Accuracy</dt>
             <dd>{Math.round(stats.accuracy * 100)}%</dd>
           </div>
         </dl>
       )}
-    </div>
+    </section>
   );
 }
