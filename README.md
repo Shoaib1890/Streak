@@ -4,11 +4,11 @@ One puzzle a day. One guess. Keep your streak alive.
 
 **Live deployment (placeholders — update after deploy):**
 
-| Service  | URL |
-|----------|-----|
-| Frontend | `https://streak.vercel.app` *(pending)* |
-| Backend  | `https://streak-api.onrender.com` *(pending)* |
-| Health   | `https://streak-api.onrender.com/health` *(pending)* |
+| Service | URL |
+|---|---|
+| Frontend | https://streak-green-three.vercel.app/ |
+| Backend API | https://streak-backend-ly90.onrender.com |
+| Health Check | https://streak-backend-ly90.onrender.com/health |
 
 ## Architecture
 
